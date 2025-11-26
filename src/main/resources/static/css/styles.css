@@ -373,12 +373,17 @@ body {
     background: linear-gradient(135deg, var(--btn-cancel-bg) 0%, var(--btn-reject-bg) 100%);
 }
 
+.modal-header.bg-success {
+    background: linear-gradient(135deg, var(--btn-success-bg) 0%, #059669 100%);
+}
+
 .modal-title {
     font-weight: 600;
     color: var(--text);
 }
 
-.modal-header.bg-danger .modal-title {
+.modal-header.bg-danger .modal-title,
+.modal-header.bg-success .modal-title {
     color: white;
 }
 

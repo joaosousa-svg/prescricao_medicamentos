@@ -35,13 +35,41 @@ function renderizarPrescricoes(prescricoes) {
     }
     
     mensagemVazia.style.display = 'none';
-    lista.innerHTML = prescricoes.map(p => criarCardPrescricao(p)).join('');
+    
+    // Detectar duplicados por ID_PROCEDIMENTO
+    const duplicados = detectarDuplicados(prescricoes);
+    
+    lista.innerHTML = prescricoes.map(p => criarCardPrescricao(p, duplicados)).join('');
+}
+
+// Detecta procedimentos duplicados
+function detectarDuplicados(prescricoes) {
+    const contador = {};
+    const duplicados = new Set();
+    
+    prescricoes.forEach(p => {
+        if (p.idProcedimento) {
+            contador[p.idProcedimento] = (contador[p.idProcedimento] || 0) + 1;
+        }
+    });
+    
+    // Marcar IDs que aparecem mais de uma vez
+    Object.keys(contador).forEach(id => {
+        if (contador[id] > 1) {
+            duplicados.add(parseInt(id));
+        }
+    });
+    
+    return duplicados;
 }
 
 // Cria card para uma prescrição
-function criarCardPrescricao(p) {
+function criarCardPrescricao(p, duplicados) {
     const isReprovado = p.statusAprovacao === 'REPROVADO';
+    const isDuplicado = duplicados.has(p.idProcedimento);
     const cardClass = isReprovado ? 'prescricao-card reprovado' : 'prescricao-card';
+    const botaoCancelarTexto = isDuplicado ? 'Excluir' : 'Cancelar';
+    const botaoCancelarIcone = isDuplicado ? 'fa-trash-alt' : 'fa-trash';
     
     return `
         <div class="${cardClass}">
@@ -53,6 +81,12 @@ function criarCardPrescricao(p) {
                     ${getBadgeStatus(p.statusAprovacao)}
                 </div>
             </div>
+            
+            ${isDuplicado ? `
+            <div class="alert alert-warning mb-3 mt-3" style="border-left: 4px solid #fbbf24; background-color: #fff3cd; color: #856404; border-radius: 8px; padding: 0.75rem 1rem; font-weight: 500;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Procedimento duplicado.</strong>
+            </div>
+            ` : ''}
             
             <div class="prescricao-info" style="grid-template-columns: repeat(3, 1fr);">
                 <div class="info-item">
@@ -81,8 +115,8 @@ function criarCardPrescricao(p) {
                     <i class="fas fa-eye"></i> Visualizar
                 </button>
                 ${p.statusAprovacao === 'PENDENTE' ? `
-                <button class="btn btn-primary btn-sm" onclick="abrirModalEditar(${p.id})">
-                    <i class="fas fa-edit"></i> Editar
+                <button class="btn btn-success btn-sm" onclick="abrirModalPrescrever(${p.id})">
+                    <i class="fas fa-prescription"></i> Prescrever
                 </button>
                 ` : ''}
                 ${p.statusAprovacao === 'REPROVADO' ? `
@@ -90,8 +124,8 @@ function criarCardPrescricao(p) {
                     <i class="fas fa-sync-alt"></i> Corrigir
                 </button>
                 ` : ''}
-                <button class="btn btn-danger btn-sm" onclick="abrirModalCancelar(${p.id}, '${p.nomePaciente || 'N/A'}')">
-                    <i class="fas fa-trash"></i> Cancelar
+                <button class="btn btn-danger btn-sm" onclick="abrirModalCancelar(${p.id}, '${p.nomePaciente || 'N/A'}', ${isDuplicado})">
+                    <i class="fas ${botaoCancelarIcone}"></i> ${botaoCancelarTexto}
                 </button>
             </div>
         </div>
@@ -168,8 +202,8 @@ function abrirModalVisualizar(id) {
     .catch(error => console.error('Erro:', error));
 }
 
-// Modal Editar
-function abrirModalEditar(id) {
+// Modal Prescrever (antigo Editar - para prontuários PENDENTES)
+function abrirModalPrescrever(id) {
     fetch(`/api/prescricoes/${id}`, {
         headers: {
             'Authorization': 'Basic ' + btoa('admin:admin')
@@ -179,6 +213,10 @@ function abrirModalEditar(id) {
     .then(p => {
         document.getElementById('editId').value = p.id;
         document.getElementById('editDescricao').value = p.textoPrescricao || '';
+        
+        // Atualizar título do modal
+        document.querySelector('#modalEditar .modal-title').innerHTML = '<i class="fas fa-prescription"></i> Prescrever';
+        document.querySelector('#modalEditar .btn-primary').innerHTML = '<i class="fas fa-save"></i> Salvar Prescrição';
         
         new bootstrap.Modal(document.getElementById('modalEditar')).show();
     })
@@ -203,9 +241,9 @@ function enviarEdicao() {
         if (response.ok) {
             bootstrap.Modal.getInstance(document.getElementById('modalEditar')).hide();
             carregarPrescricoes();
-            alert('Prontuário editado com sucesso!');
+            alert('Prescrição salva com sucesso!');
         } else {
-            alert('Erro ao editar prontuário');
+            alert('Erro ao salvar prescrição');
         }
     })
     .catch(error => console.error('Erro:', error));
@@ -256,10 +294,28 @@ function enviarCorrecao() {
 }
 
 // Modal Cancelar
-function abrirModalCancelar(id, nomePaciente) {
+function abrirModalCancelar(id, nomePaciente, isDuplicado) {
     document.getElementById('cancelarId').value = id;
     document.getElementById('cancelarIdDisplay').textContent = id;
     document.getElementById('cancelarPaciente').textContent = nomePaciente;
+    
+    // Atualizar título e texto do modal
+    const modalTitle = document.querySelector('#modalCancelar .modal-title');
+    const modalAlert = document.querySelector('#modalCancelar .alert');
+    const modalPergunta = document.querySelector('#modalCancelar p');
+    const btnConfirmar = document.querySelector('#modalCancelar .btn-danger');
+    
+    if (isDuplicado) {
+        modalTitle.innerHTML = '<i class="fas fa-trash-alt"></i> Excluir Prontuário';
+        modalAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Atenção!</strong> Este procedimento está duplicado. Exclua um dos prontuários.';
+        modalPergunta.textContent = 'Tem certeza que deseja excluir permanentemente este prontuário?';
+        btnConfirmar.innerHTML = '<i class="fas fa-trash-alt"></i> Sim, excluir';
+    } else {
+        modalTitle.innerHTML = '<i class="fas fa-trash"></i> Cancelar Prontuário';
+        modalAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Atenção!</strong> Esta ação não pode ser desfeita.';
+        modalPergunta.textContent = 'Tem certeza que deseja cancelar permanentemente este prontuário?';
+        btnConfirmar.innerHTML = '<i class="fas fa-trash"></i> Sim, cancelar';
+    }
     
     new bootstrap.Modal(document.getElementById('modalCancelar')).show();
 }
@@ -277,9 +333,9 @@ function confirmarCancelamento() {
         if (response.ok) {
             bootstrap.Modal.getInstance(document.getElementById('modalCancelar')).hide();
             carregarPrescricoes();
-            alert('Prontuário cancelado com sucesso!');
+            alert('Prontuário excluído com sucesso!');
         } else {
-            alert('Erro ao cancelar prontuário');
+            alert('Erro ao excluir prontuário');
         }
     })
     .catch(error => console.error('Erro:', error));

@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ProntuarioTemporarioRepository extends JpaRepository<ProntuarioTemporario, Integer> {
     
-    // Buscar prontuários do profissional excluindo os APROVADOS (que já foram para PRONTUARIO definitivo)
-    @Query("SELECT p FROM ProntuarioTemporario p WHERE p.profissional = ?1 AND (p.statusAprovacao = 'PENDENTE' OR p.statusAprovacao = 'REPROVADO')")
-    List<ProntuarioTemporario> findByProfissional(Integer profissionalId);
+    // Buscar prontuários do profissional e especialidade específicos, excluindo os APROVADOS
+    @Query("SELECT p FROM ProntuarioTemporario p WHERE p.profissional = ?1 AND p.especialidade = ?2 AND (p.statusAprovacao = 'PENDENTE' OR p.statusAprovacao = 'REPROVADO')")
+    List<ProntuarioTemporario> findByProfissionalAndEspecialidade(Integer profissionalId, Integer especialidadeId);
 }

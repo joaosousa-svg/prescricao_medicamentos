@@ -39,14 +39,15 @@ public class PrescricaoService {
 
     /**
      * FUNCIONALIDADE 1: Listar Prescrições
-     * Filtro: WHERE ID_PROFISSIO = profissionalId do contexto
+     * Filtro: WHERE ID_PROFISSIO = 99 AND ID_ESPEC = 11
      * Busca apenas dados essenciais: ID, Paciente, Data, Status
      */
     @Transactional(readOnly = true)
     public List<PrescricaoDTO> getMinhasPrescricoes() {
         Integer profissionalId = userContext.getProfissionalId();
+        Integer especialidadeId = userContext.getEspecialidadeId();
         
-        List<ProntuarioTemporario> prontuarios = prontuarioRepository.findByProfissional(profissionalId);
+        List<ProntuarioTemporario> prontuarios = prontuarioRepository.findByProfissionalAndEspecialidade(profissionalId, especialidadeId);
         List<PrescricaoDTO> dtos = new ArrayList<>();
 
         for (ProntuarioTemporario p : prontuarios) {
@@ -201,12 +202,13 @@ public class PrescricaoService {
     @Transactional(readOnly = true)
     public String debugDados() {
         Integer profissionalId = userContext.getProfissionalId();
+        Integer especialidadeId = userContext.getEspecialidadeId();
         long totalProntuarios = prontuarioRepository.count();
-        List<ProntuarioTemporario> meusProntuarios = prontuarioRepository.findByProfissional(profissionalId);
+        List<ProntuarioTemporario> meusProntuarios = prontuarioRepository.findByProfissionalAndEspecialidade(profissionalId, especialidadeId);
         
         return String.format(
-            "Profissional ID: %d | Total prontuários no banco: %d | Meus prontuários: %d", 
-            profissionalId, totalProntuarios, meusProntuarios.size()
+            "Profissional ID: %d | Especialidade ID: %d | Total prontuários no banco: %d | Meus prontuários: %d", 
+            profissionalId, especialidadeId, totalProntuarios, meusProntuarios.size()
         );
     }
 }
