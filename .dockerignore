@@ -1,0 +1,17 @@
+# Arquivos gerados pelo Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Logs
+*.log
