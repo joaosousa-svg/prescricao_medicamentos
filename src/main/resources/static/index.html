@@ -7,18 +7,15 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="header-left">
-                <i data-feather="settings"></i>
+                <i data-feather="file-text"></i>
                 <h1>FASIODONTO</h1>
             </div>
         </div>
@@ -30,7 +27,7 @@
             <ul>
                 <li>
                     <a href="#" class="nav-item active">
-                        <i class="fas fa-notes-medical"></i>
+                        <i data-feather="file-text"></i>
                         <span>Prontuários</span>
                     </a>
                 </li>
@@ -42,7 +39,7 @@
     <main class="main-content">
         <div class="content-header">
             <button class="btn btn-light" onclick="carregarPrescricoes()">
-                <i class="fas fa-sync-alt"></i> Atualizar
+                <i data-feather="refresh-cw"></i> Atualizar
             </button>
         </div>
 
@@ -52,7 +49,7 @@
         </div>
 
         <div id="mensagemVazia" class="text-center py-5" style="display: none;">
-            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <i data-feather="file-text" class="text-muted mb-3" style="width: 48px; height: 48px;"></i>
             <h4 class="text-muted">Nenhum prontuário encontrado</h4>
             <p class="text-muted">Não há prontuários temporários no momento.</p>
         </div>
@@ -63,7 +60,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-eye"></i> Detalhes do Prontuário</h5>
+                    <h5 class="modal-title">Detalhes do Prontuário</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -128,7 +125,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="fas fa-prescription"></i> Prescrever</h5>
+                    <h5 class="modal-title">Prescrever</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -140,7 +137,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" onclick="enviarEdicao()">
-                        <i class="fas fa-save"></i> Salvar Prescrição
+                        Salvar Prescrição
                     </button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
                 </div>
@@ -153,7 +150,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Corrigir Prontuário Reprovado</h5>
+                    <h5 class="modal-title">Corrigir Prontuário Reprovado</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -169,7 +166,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" onclick="enviarCorrecao()">
-                        <i class="fas fa-check"></i> Enviar Correção
+                        Enviar Correção
                     </button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
                 </div>
@@ -177,36 +174,10 @@
         </div>
     </div>
 
-    <!-- Modal Cancelar -->
-    <div class="modal fade" id="modalCancelar" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="fas fa-trash"></i> Cancelar Prontuário</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="cancelarId">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <strong>Atenção!</strong> Esta ação não pode ser desfeita.
-                    </div>
-                    <p>Tem certeza que deseja cancelar permanentemente este prontuário?</p>
-                    <p><strong>ID:</strong> <span id="cancelarIdDisplay"></span></p>
-                    <p><strong>Paciente:</strong> <span id="cancelarPaciente"></span></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não, voltar</button>
-                    <button type="button" class="btn btn-danger" onclick="confirmarCancelamento()">
-                        <i class="fas fa-trash"></i> Sim, cancelar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
     <!-- Custom JS -->
     <script src="js/app.js"></script>
     <script>

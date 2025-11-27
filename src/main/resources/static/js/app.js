@@ -40,6 +40,7 @@ function renderizarPrescricoes(prescricoes) {
     const duplicados = detectarDuplicados(prescricoes);
     
     lista.innerHTML = prescricoes.map(p => criarCardPrescricao(p, duplicados)).join('');
+    feather.replace();
 }
 
 // Detecta procedimentos duplicados
@@ -113,20 +114,17 @@ function criarCardPrescricao(p, duplicados) {
             <div class="prescricao-actions">
                 ${p.statusAprovacao === 'PENDENTE' ? `
                 <button class="btn btn-success btn-sm" onclick="abrirModalPrescrever(${p.id})">
-                    <i class="fas fa-prescription"></i> Prescrever
+                    Prescrever
                 </button>
                 ` : ''}
                 <button class="btn btn-info btn-sm" onclick="abrirModalVisualizar(${p.id})">
-                    <i class="fas fa-eye"></i> Visualizar
+                    Visualizar
                 </button>
                 ${p.statusAprovacao === 'REPROVADO' ? `
                 <button class="btn btn-warning btn-sm" onclick="abrirModalCorrigir(${p.id})">
-                    <i class="fas fa-sync-alt"></i> Corrigir
+                    Corrigir
                 </button>
                 ` : ''}
-                <button class="btn btn-danger btn-sm" onclick="abrirModalCancelar(${p.id}, '${p.nomePaciente || 'N/A'}', ${isDuplicado})">
-                    <i class="fas ${botaoCancelarIcone}"></i> ${botaoCancelarTexto}
-                </button>
             </div>
         </div>
     `;
@@ -305,50 +303,4 @@ function enviarCorrecao() {
     .catch(error => console.error('Erro:', error));
 }
 
-// Modal Cancelar
-function abrirModalCancelar(id, nomePaciente, isDuplicado) {
-    document.getElementById('cancelarId').value = id;
-    document.getElementById('cancelarIdDisplay').textContent = id;
-    document.getElementById('cancelarPaciente').textContent = nomePaciente;
-    
-    // Atualizar título e texto do modal
-    const modalTitle = document.querySelector('#modalCancelar .modal-title');
-    const modalAlert = document.querySelector('#modalCancelar .alert');
-    const modalPergunta = document.querySelector('#modalCancelar p');
-    const btnConfirmar = document.querySelector('#modalCancelar .btn-danger');
-    
-    if (isDuplicado) {
-        modalTitle.innerHTML = '<i class="fas fa-trash-alt"></i> Excluir Prontuário';
-        modalAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Atenção!</strong> Este procedimento está duplicado. Exclua um dos prontuários.';
-        modalPergunta.textContent = 'Tem certeza que deseja excluir permanentemente este prontuário?';
-        btnConfirmar.innerHTML = '<i class="fas fa-trash-alt"></i> Sim, excluir';
-    } else {
-        modalTitle.innerHTML = '<i class="fas fa-trash"></i> Cancelar Prontuário';
-        modalAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> <strong>Atenção!</strong> Esta ação não pode ser desfeita.';
-        modalPergunta.textContent = 'Tem certeza que deseja cancelar permanentemente este prontuário?';
-        btnConfirmar.innerHTML = '<i class="fas fa-trash"></i> Sim, cancelar';
-    }
-    
-    new bootstrap.Modal(document.getElementById('modalCancelar')).show();
-}
 
-function confirmarCancelamento() {
-    const id = document.getElementById('cancelarId').value;
-    
-    fetch(`/api/prescricoes/cancelar/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': 'Basic ' + btoa('admin:admin')
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            bootstrap.Modal.getInstance(document.getElementById('modalCancelar')).hide();
-            carregarPrescricoes();
-            alert('Prontuário excluído com sucesso!');
-        } else {
-            alert('Erro ao excluir prontuário');
-        }
-    })
-    .catch(error => console.error('Erro:', error));
-}
